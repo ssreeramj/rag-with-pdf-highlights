@@ -1,0 +1,10 @@
+.venv
+.env
+__pycache__
+.ruff_cache
+.pylintrc
+
+# faiss vdbs
+faiss-vdbs
+*.pkl
+*.faiss

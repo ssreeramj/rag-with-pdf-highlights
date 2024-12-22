@@ -1,0 +1,10 @@
+streamlit
+langchain-community
+langchain-openai
+langchain
+langgraph
+pymupdf
+faiss-cpu
+python-dotenv
+isort
+ruff

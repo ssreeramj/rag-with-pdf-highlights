@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Viewer with Annotations</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #525659;
+        }
+        #viewerContainer {
+            width: 100vw;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .pageContainer {
+            position: relative;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        .highlight-annotation {
+            position: absolute;
+            background-color: rgba(255, 255, 0, 0.3);
+            border: 2px solid rgba(255, 255, 0, 0.5);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .pageNumber {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #525659;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewerContainer"></div>
+
+    <script>
+        // Configure PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const pdfUrl = urlParams.get('file');
+        const initialPageNumber = parseInt(urlParams.get('pageNumber')) || 1;
+
+        // Get annotations array
+        let annotations = [];
+        try {
+            const annotationsParam = urlParams.get('annotations');
+            if (annotationsParam) {
+                annotations = JSON.parse(annotationsParam);
+            }
+        } catch (error) {
+            console.error('Error parsing annotations:', error);
+        }
+
+        console.log('Initial Page:', initialPageNumber);
+        console.log('Annotations:', annotations);
+
+        async function renderPage(pdf, pageNumber, scale) {
+            // Get the page
+            const page = await pdf.getPage(pageNumber);
+
+            // Create page container
+            const pageContainer = document.createElement('div');
+            pageContainer.className = 'pageContainer';
+            pageContainer.id = `page-${pageNumber}`;
+
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            // Get viewport
+            const viewport = page.getViewport({ scale });
+
+            // Set dimensions
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            pageContainer.style.width = `${viewport.width}px`;
+            pageContainer.style.height = `${viewport.height}px`;
+
+            // Add page number
+            const pageLabel = document.createElement('div');
+            pageLabel.className = 'pageNumber';
+            pageLabel.textContent = `Page ${pageNumber}`;
+            pageContainer.appendChild(pageLabel);
+
+            // Add canvas to container
+            pageContainer.appendChild(canvas);
+
+            // Render PDF page
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            // Filter and add highlights for this page
+            const pageAnnotations = annotations.filter(ann => (ann.page + 1) === pageNumber);
+            if (pageAnnotations.length > 0) {
+                console.log(`Adding ${pageAnnotations.length} highlights to page ${pageNumber}`);
+
+                pageAnnotations.forEach((ann, index) => {
+                    if (ann.width > 0 && ann.height > 0) {
+                        const highlight = document.createElement('div');
+                        highlight.className = 'highlight-annotation';
+
+                        // Scale the coordinates
+                        const scaledX = ann.x * scale;
+                        const scaledY = viewport.height - ((ann.y + ann.height) * scale);
+                        const scaledWidth = ann.width * scale;
+                        const scaledHeight = ann.height * scale;
+
+                        Object.assign(highlight.style, {
+                            left: `${scaledX}px`,
+                            top: `${scaledY}px`,
+                            width: `${scaledWidth}px`,
+                            height: `${scaledHeight}px`
+                        });
+
+                        pageContainer.appendChild(highlight);
+                        console.log(`Highlight ${index + 1} added on page ${pageNumber}:`, highlight.style);
+                    }
+                });
+            }
+
+            return pageContainer;
+        }
+
+        async function renderPDF() {
+            try {
+                if (!pdfUrl) throw new Error('No PDF URL provided');
+
+                // Load the PDF
+                const loadingTask = pdfjsLib.getDocument(pdfUrl);
+                const pdf = await loadingTask.promise;
+
+                // Calculate scale
+                // const firstPage = await pdf.getPage(1);
+                // const originalViewport = firstPage.getViewport({ scale: 1.0 });
+                // const desiredWidth = window.innerWidth * 0.9;
+                // const scale = desiredWidth / originalViewport.width;
+
+                const scale = 1.5
+
+                // Get container
+                const container = document.getElementById('viewerContainer');
+                    
+                // Render all pages
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const pageContainer = await renderPage(pdf, pageNum, scale);
+                    container.appendChild(pageContainer);
+                }
+
+                // Scroll to initial page
+                const targetPage = document.getElementById(`page-${initialPageNumber}`);
+                if (targetPage) {
+                    targetPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('viewerContainer').innerHTML = `
+                    <div style="color: white; padding: 20px;">
+                        Error: ${error.message}<br>
+                        Please make sure the URL includes the correct parameters.
+                    </div>`;
+            }
+        }
+
+        // Start rendering
+        renderPDF();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

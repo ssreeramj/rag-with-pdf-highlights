@@ -1,0 +1,7 @@
+pdf-folder-path: pdf-docs
+vectordb-folder-path: faiss-vdbs # folder to store faiss vector dbs
+chars-per-passage: 1000 # used in pdf_processing.py
+
+# embedding params
+chunk-size: 700
+chunk-overlap: 70
