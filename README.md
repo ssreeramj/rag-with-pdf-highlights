@@ -1,4 +1,11 @@
-# Automobile Manuals Question Answering Chatbot
+# RAG with PDF Highlighting
+
+## Demo
+
+<video width="600" controls autoplay>
+    <source src="demo-v1.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
 ## Prerequisites
 - Python 3.8+
@@ -36,7 +43,7 @@ OPENAI_API_KEY=<openai-api-key>
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
 LANGCHAIN_API_KEY=<langchain-api-key>
-LANGCHAIN_PROJECT="chennai-genai-hackathon"
+LANGCHAIN_PROJECT=<project-name>
 ```
 
 ### 4. Optional: Upload PDFs

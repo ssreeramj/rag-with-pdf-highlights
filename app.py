@@ -16,7 +16,7 @@ load_dotenv()
 
 st.markdown(
     """
-    <h1 style="text-align: center;">AUTO ASSIST 🚗</h1>
+    <h1 style="text-align: center;">RAG with PDF Highlights</h1>
     """,
     unsafe_allow_html=True
 )
@@ -39,7 +39,7 @@ if "messages" not in st.session_state:
 
 st.sidebar.title("Knowledge Base")
 dropdown_selection = st.sidebar.selectbox(
-    "📃 Select a Product Manual",
+    "📃 Select a PDF",
     key="user_input_db_name",
     options=vdb_names,
     index=0,  # Default selected option
@@ -55,7 +55,7 @@ if len(st.session_state["messages"]) == 0 or st.sidebar.button("Clear Chat 🧹"
 for msg in st.session_state["messages"]:
     st.chat_message(msg.type).write(msg.content)
 
-if user_query := st.chat_input(placeholder="Ask me anything about the manual!"):
+if user_query := st.chat_input(placeholder="Ask me anything about the PDF!"):
     st.chat_message("user").write(user_query)
     st.session_state.messages.append(HumanMessage(content=user_query))
 
