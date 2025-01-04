@@ -2,10 +2,7 @@
 
 ## Demo
 
-<video width="600" controls autoplay>
-    <source src="demo-v1.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
+![Demo](demo-v1.gif)
 
 ## Prerequisites
 - Python 3.8+
