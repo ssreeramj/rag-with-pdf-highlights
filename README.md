@@ -16,7 +16,7 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone https://bitbucket.org/v4c_work/gen_ai_hack4ce.git
+git clone https://github.com/ssreeramj/rag-with-pdf-highlights.git
 ```
 
 ### 2. Create Virtual Environment
